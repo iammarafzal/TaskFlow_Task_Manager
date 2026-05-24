@@ -306,10 +306,17 @@ export function TasksPage() {
                   <Clock className="w-3.5 h-3.5" />
                   {task.effort}h
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-400 text-xs bg-[#0d121f] px-2.5 py-1 rounded-md border border-white/[0.04] ml-auto">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {format(parseISO(task.dueDate), 'MMM d, ha')}
-                </div>
+                {task.status === 'completed' && task.completedAt ? (
+                  <div className="flex items-center gap-1.5 text-emerald-400 text-xs bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 ml-auto" title={`Due: ${format(parseISO(task.dueDate), 'MMM d, ha')}`}>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Comp: {format(parseISO(task.completedAt), 'MMM d, ha')}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-slate-400 text-xs bg-[#0d121f] px-2.5 py-1 rounded-md border border-white/[0.04] ml-auto">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {format(parseISO(task.dueDate), 'MMM d, ha')}
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}

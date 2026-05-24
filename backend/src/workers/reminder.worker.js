@@ -1,6 +1,6 @@
 // src/workers/reminder.worker.js
 import cron from 'node-cron';
-import { LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, IsNull } from 'typeorm';
 import { AppDataSource } from '../database/datasource.js';
 import { pushRealtimeNotification } from '../sockets/notification.socket.js';
 
@@ -17,12 +17,19 @@ export function initializeCronWorkers() {
 
             const currentTime = new Date();
 
-            // Auto-delete tasks completed more than 10 days ago
+            // Auto-delete tasks completed more than 10 days ago (using completedAt with updatedAt fallback)
             const tenDaysAgo = new Date(currentTime.getTime() - 10 * 24 * 60 * 60 * 1000);
-            const deleteResult = await taskRepository.delete({
-                status: 'COMPLETED',
-                updatedAt: LessThanOrEqual(tenDaysAgo)
-            });
+            const deleteResult = await taskRepository.delete([
+                {
+                    status: 'COMPLETED',
+                    completedAt: LessThanOrEqual(tenDaysAgo)
+                },
+                {
+                    status: 'COMPLETED',
+                    completedAt: IsNull(),
+                    updatedAt: LessThanOrEqual(tenDaysAgo)
+                }
+            ]);
             if (deleteResult.affected > 0) {
                 console.log(`[Cron Worker] Auto-deleted ${deleteResult.affected} tasks completed more than 10 days ago.`);
             }
