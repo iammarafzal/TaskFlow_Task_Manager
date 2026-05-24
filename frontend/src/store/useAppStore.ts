@@ -66,7 +66,7 @@ interface AppState {
 // Convert backend uppercase DB values to local camelCase structures
 const mapToFrontend = (task: any): Task => {
   const isCompleted = task.status === 'COMPLETED';
-  const completedAt = isCompleted ? task.updatedAt : undefined;
+  const completedAt = task.completedAt || undefined;
   const isArchived = isCompleted;
 
   return {

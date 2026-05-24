@@ -73,6 +73,7 @@ export async function createTask(req, res, next) {
             ...payload,
             deadline: new Date(payload.deadline),
             score: computedScore,
+            completedAt: payload.status === 'COMPLETED' ? new Date() : null,
             user: { id: req.user.id }
         });
 
@@ -106,7 +107,14 @@ export async function updateTask(req, res, next) {
         if (payload.impact !== undefined) task.impact = payload.impact;
         if (payload.deadline !== undefined) task.deadline = new Date(payload.deadline);
         if (payload.effort !== undefined) task.effort = payload.effort;
-        if (payload.status !== undefined) task.status = payload.status;
+        if (payload.status !== undefined) {
+            task.status = payload.status;
+            if (payload.status === 'COMPLETED') {
+                task.completedAt = new Date();
+            } else if (payload.status === 'PENDING') {
+                task.completedAt = null;
+            }
+        }
 
         // Recalculate priority scores based on updated metrics
         task.score = calculatePriorityScore({

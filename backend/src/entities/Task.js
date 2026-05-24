@@ -46,6 +46,10 @@ export default new EntitySchema({
         updatedAt: {
             type: "timestamp with time zone",
             updateDate: true
+        },
+        completedAt: {
+            type: "timestamp with time zone",
+            nullable: true
         }
     },
     relations: {
