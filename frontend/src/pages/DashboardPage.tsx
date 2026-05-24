@@ -247,62 +247,89 @@ export function DashboardPage() {
               </div>
             ) : (
               <div className="relative">
-                {/* Bar chart */}
-                <div className="flex items-end justify-between gap-1 h-36 pb-0">
-                  {timelineData.map((data) => {
-                    const barHeight = Math.max(data.percentage, data.count > 0 ? 8 : 3);
-                    const isToday = data.date === new Date().toISOString().slice(0, 10);
-                    return (
-                      <div key={data.date} className="flex-1 flex flex-col items-center justify-end group relative">
-                        {/* Count label above bar */}
-                        {data.count > 0 && (
-                          <span className="text-[10px] font-bold text-blue-300 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                            {data.count}
-                          </span>
-                        )}
-                        {/* Bar */}
+                {/* Bar chart area — fixed pixel height so % heights resolve correctly */}
+                <div className="relative w-full" style={{ height: '144px' }}>
+                  <div className="absolute inset-0 flex items-end gap-1.5">
+                    {timelineData.map((data) => {
+                      const barPct = data.count > 0 ? Math.max(data.percentage, 10) : 4;
+                      const todayLocal = (() => {
+                        const n = new Date();
+                        return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+                      })();
+                      const isToday = data.date === todayLocal;
+                      return (
                         <div
-                          className="w-full rounded-t-md transition-all duration-500 ease-out relative overflow-hidden cursor-default"
-                          style={{
-                            height: `${barHeight}%`,
-                            background: data.count > 0
-                              ? isToday
-                                ? 'linear-gradient(180deg, #60a5fa 0%, #2563eb 100%)'
-                                : 'linear-gradient(180deg, #3b82f6aa 0%, #1d4ed880 100%)'
-                              : 'rgba(255,255,255,0.04)'
-                          }}
+                          key={data.date}
+                          className="relative flex-1 group"
+                          style={{ height: '100%' }}
                         >
-                          {/* Shimmer on hover for active bars */}
-                          {data.count > 0 && (
-                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                          )}
-                        </div>
-                        {/* Tooltip on hover */}
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                          <div className="bg-slate-800 border border-white/10 rounded-lg px-2.5 py-1.5 text-center whitespace-nowrap shadow-xl">
-                            <p className="text-[11px] font-bold text-slate-100">{data.count} task{data.count !== 1 ? 's' : ''}</p>
-                            <p className="text-[10px] text-slate-400">{data.day}</p>
+                          {/* Bar — anchored at bottom with absolute positioning */}
+                          <div
+                            className="absolute bottom-0 left-0 right-0 rounded-t-md transition-all duration-500 ease-out"
+                            style={{
+                              height: `${barPct}%`,
+                              background: data.count > 0
+                                ? isToday
+                                  ? 'linear-gradient(180deg, #93c5fd 0%, #2563eb 100%)'
+                                  : 'linear-gradient(180deg, #60a5fa88 0%, #1d4ed866 100%)'
+                                : 'rgba(255,255,255,0.04)',
+                              boxShadow: data.count > 0 && isToday
+                                ? '0 0 12px rgba(59,130,246,0.4)'
+                                : 'none'
+                            }}
+                          >
+                            {/* Shimmer overlay on hover */}
+                            {data.count > 0 && (
+                              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-200 rounded-t-md" />
+                            )}
                           </div>
-                          {/* Arrow */}
-                          <div className="w-2 h-2 bg-slate-800 border-r border-b border-white/10 rotate-45 mx-auto -mt-1" />
+
+                          {/* Count badge — always visible above bar when count > 0 */}
+                          {data.count > 0 && (
+                            <div
+                              className="absolute left-0 right-0 flex items-center justify-center"
+                              style={{ bottom: `${barPct + 1}%` }}
+                            >
+                              <span className={`text-[10px] font-bold leading-none ${isToday ? 'text-blue-300' : 'text-slate-400'}`}>
+                                {data.count}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Tooltip on hover */}
+                          <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                            <div className="bg-[#1e2840] border border-blue-500/20 rounded-lg px-3 py-2 text-center whitespace-nowrap shadow-2xl">
+                              <p className="text-[12px] font-bold text-slate-100">{data.count} task{data.count !== 1 ? 's' : ''}</p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">{data.day}{isToday ? ' · Today' : ''}</p>
+                            </div>
+                            <div className="w-2 h-2 bg-[#1e2840] border-r border-b border-blue-500/20 rotate-45 mx-auto -mt-1.5" />
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Baseline rule */}
+                <div className="h-px bg-white/[0.08] w-full" />
+
+                {/* Day labels */}
+                <div className="flex gap-1.5 mt-2">
+                  {timelineData.map((data) => {
+                    const todayLocal = (() => {
+                      const n = new Date();
+                      return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+                    })();
+                    return (
+                      <div key={data.date} className="flex-1 text-center">
+                        <span className={`text-[10px] font-semibold ${
+                          data.date === todayLocal ? 'text-blue-400' : 'text-slate-600'
+                        }`}>
+                          {data.day}
+                        </span>
                       </div>
                     );
                   })}
-                </div>
-                {/* Baseline */}
-                <div className="h-px bg-white/[0.06] w-full mt-0" />
-                {/* Day labels */}
-                <div className="flex justify-between gap-1 mt-2">
-                  {timelineData.map((data) => (
-                    <div key={data.date} className="flex-1 text-center">
-                      <span className={`text-[10px] font-medium ${
-                        data.date === new Date().toISOString().slice(0, 10)
-                          ? 'text-blue-400'
-                          : 'text-slate-500'
-                      }`}>{data.day}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
