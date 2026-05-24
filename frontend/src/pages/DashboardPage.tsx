@@ -95,8 +95,12 @@ export function DashboardPage() {
 
   const timelineData = analytics?.analytics7Days?.map((d: any) => ({
     day: getDayName(d.date),
-    percentage: d.percentage
+    date: d.date,
+    count: d.count as number,
+    percentage: d.percentage as number
   })) || [];
+
+  const totalVelocity = timelineData.reduce((s, d) => s + d.count, 0);
 
   // Show fallback loading spinner only on initial load when data is empty
   const isInitialLoad = !analytics && isFetching.dashboardAnalytics;
@@ -224,24 +228,82 @@ export function DashboardPage() {
             </div>
           )}
 
-          {/* 7-Day Timeline */}
+          {/* 7-Day Velocity Chart */}
           <div className="bg-[#111726] border border-white/[0.06] rounded-2xl p-6">
-            <h3 className="text-sm font-bold text-slate-100 uppercase tracking-widest mb-8">7-Day Velocity</h3>
-            {timelineData.length === 0 ? (
-              <p className="text-xs text-slate-500 text-center py-10">No velocity data logged.</p>
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h3 className="text-sm font-bold text-slate-100 uppercase tracking-widest">7-Day Velocity</h3>
+                <p className="text-[11px] text-slate-500 mt-1">Tasks completed per day</p>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-blue-400">{totalVelocity}</span>
+                <p className="text-[10px] text-slate-500 mt-0.5">past 7 days</p>
+              </div>
+            </div>
+            {totalVelocity === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 border border-dashed border-white/[0.06] rounded-xl">
+                <Activity className="w-7 h-7 text-slate-600 mb-2" />
+                <p className="text-xs text-slate-500">No tasks completed in the last 7 days.</p>
+              </div>
             ) : (
-              <div className="flex items-end justify-between h-32 px-2 sm:px-4">
-                {timelineData.map((data, index) => {
-                  const colors = [
-                    "bg-blue-500/20", "bg-blue-500/30", "bg-blue-500/50", "bg-blue-500/40",
-                    "bg-blue-500/60", "bg-blue-500/20", "bg-blue-500/10"
-                  ];
-                  return (
-                    <div key={data.day} className={`w-8 sm:w-10 ${colors[index % colors.length]} rounded-t-lg relative group transition-all duration-300 hover:opacity-80`} style={{ height: `${Math.max(data.percentage, 5)}%` }}>
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-slate-400 font-medium">{data.day}</div>
+              <div className="relative">
+                {/* Bar chart */}
+                <div className="flex items-end justify-between gap-1 h-36 pb-0">
+                  {timelineData.map((data) => {
+                    const barHeight = Math.max(data.percentage, data.count > 0 ? 8 : 3);
+                    const isToday = data.date === new Date().toISOString().slice(0, 10);
+                    return (
+                      <div key={data.date} className="flex-1 flex flex-col items-center justify-end group relative">
+                        {/* Count label above bar */}
+                        {data.count > 0 && (
+                          <span className="text-[10px] font-bold text-blue-300 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                            {data.count}
+                          </span>
+                        )}
+                        {/* Bar */}
+                        <div
+                          className="w-full rounded-t-md transition-all duration-500 ease-out relative overflow-hidden cursor-default"
+                          style={{
+                            height: `${barHeight}%`,
+                            background: data.count > 0
+                              ? isToday
+                                ? 'linear-gradient(180deg, #60a5fa 0%, #2563eb 100%)'
+                                : 'linear-gradient(180deg, #3b82f6aa 0%, #1d4ed880 100%)'
+                              : 'rgba(255,255,255,0.04)'
+                          }}
+                        >
+                          {/* Shimmer on hover for active bars */}
+                          {data.count > 0 && (
+                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                          )}
+                        </div>
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                          <div className="bg-slate-800 border border-white/10 rounded-lg px-2.5 py-1.5 text-center whitespace-nowrap shadow-xl">
+                            <p className="text-[11px] font-bold text-slate-100">{data.count} task{data.count !== 1 ? 's' : ''}</p>
+                            <p className="text-[10px] text-slate-400">{data.day}</p>
+                          </div>
+                          {/* Arrow */}
+                          <div className="w-2 h-2 bg-slate-800 border-r border-b border-white/10 rotate-45 mx-auto -mt-1" />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Baseline */}
+                <div className="h-px bg-white/[0.06] w-full mt-0" />
+                {/* Day labels */}
+                <div className="flex justify-between gap-1 mt-2">
+                  {timelineData.map((data) => (
+                    <div key={data.date} className="flex-1 text-center">
+                      <span className={`text-[10px] font-medium ${
+                        data.date === new Date().toISOString().slice(0, 10)
+                          ? 'text-blue-400'
+                          : 'text-slate-500'
+                      }`}>{data.day}</span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             )}
           </div>
