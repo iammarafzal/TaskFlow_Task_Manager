@@ -1,0 +1,17 @@
+# Dependency Directories
+node_modules/
+
+# Local Environment Variables & Secrets
+.env
+*.env.json
+
+# System & OS Overlays
+.DS_Store
+.idea/
+.vscode/
+
+# Database & Operational Logs
+npm-debug.log*
+logs/
+*.log
+typeorm-ts-node-commonjs/
