@@ -7,6 +7,7 @@ import { useAppStore, Task, Impact, Status } from '../store/useAppStore';
 import { useSmartRefresh } from '../hooks/useSmartRefresh';
 import { useLocalTick } from '../hooks/useLocalTick';
 import { ImportTasksModal } from '../components/ImportTasksModal';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export function TasksPage() {
   const {
@@ -171,7 +172,7 @@ export function TasksPage() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="p-4 md:p-8 overflow-y-auto space-y-6 flex-1">
+      <div className="px-3 py-4 md:p-8 overflow-y-auto space-y-6 flex-1">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight">Tasks</h1>
@@ -254,9 +255,23 @@ export function TasksPage() {
 
       {/* Grid Layout (Desktop) / Stacked Cards (Mobile) */}
       {isFetching.tasks && tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-          <p className="text-slate-500 text-sm">Loading your tasks...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-[#111726] border border-white/[0.06] rounded-2xl p-5 flex flex-col min-h-[140px]">
+              <div className="flex items-start gap-4 mb-4">
+                <Skeleton className="w-6 h-6 rounded-full shrink-0" />
+                <div className="flex-1 space-y-2 mt-1">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </div>
+              <div className="mt-auto flex items-center gap-2 pt-4 border-t border-white/[0.04]">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-12" />
+                <Skeleton className="h-5 w-24 ml-auto" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredTasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/[0.06] rounded-2xl bg-[#111726]/20">
@@ -274,7 +289,7 @@ export function TasksPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                 key={task.id}
-                className="bg-[#111726] border border-white/[0.06] rounded-2xl p-5 flex flex-col hover:border-white/[0.12] transition-colors duration-200 group"
+                className="bg-[#111726] border border-white/[0.06] rounded-2xl p-5 flex flex-col lg:hover:border-white/[0.12] transition-colors duration-200 group"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <button 
@@ -294,7 +309,7 @@ export function TasksPage() {
                       {task.title}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={() => handleOpenModal(task)}
                       className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-md transition-colors"

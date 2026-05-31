@@ -4,6 +4,7 @@ import { Activity, Target, Zap, Clock, AlertCircle, Loader2, CheckCircle2 } from
 import { cn } from '../lib/utils';
 import { useAppStore } from '../store/useAppStore';
 import { useSmartRefresh } from '../hooks/useSmartRefresh';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export function DashboardPage() {
   const {
@@ -94,9 +95,29 @@ export function DashboardPage() {
 
   if (isInitialLoad) {
     return (
-      <div className="flex flex-col items-center justify-center h-full w-full py-20">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
-        <p className="text-slate-500 text-sm">Loading your dashboard...</p>
+      <div className="flex flex-col h-full w-full">
+        <header className="h-20 shrink-0 px-4 md:px-8 border-b border-white/[0.06] flex items-center justify-between bg-[#090d16]">
+          <div>
+            <Skeleton className="h-8 w-40 mb-2" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+        </header>
+        <div className="flex-1 px-3 py-4 md:p-8 overflow-y-auto space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <Skeleton className="h-[120px] rounded-2xl" />
+            <Skeleton className="h-[120px] rounded-2xl" />
+            <Skeleton className="h-[120px] rounded-2xl" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-32 ml-1" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Skeleton className="h-[160px] rounded-2xl" />
+              <Skeleton className="h-[160px] rounded-2xl hidden md:block" />
+              <Skeleton className="h-[160px] rounded-2xl hidden lg:block" />
+            </div>
+          </div>
+          <Skeleton className="h-[250px] rounded-2xl w-full" />
+        </div>
       </div>
     );
   }
@@ -119,7 +140,7 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6">
+      <div className="flex-1 px-3 py-4 md:p-8 overflow-y-auto space-y-6">
         {/* Burnout Banner */}
         {activeAnalytics.burnoutWarning && (
           <motion.div
@@ -201,7 +222,7 @@ export function DashboardPage() {
                         </div>
                         <button
                           onClick={() => handleResolveTarget(task.id)}
-                          className="w-full px-4 py-2 bg-blue-600/80 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 group-hover:bg-blue-500"
+                          className="w-full px-4 py-2 bg-blue-600/80 active:bg-blue-500 lg:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 lg:group-hover:bg-blue-500"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                           Complete
