@@ -36,7 +36,7 @@ export function generateToken(user) {
     };
 
     const options = {
-        expiresIn: '24h' // Configured for an exact 24-hour expiration window
+        expiresIn: '12h' // Configured for an exact 12-hour expiration window
     };
 
     return jwt.sign(payload, env.JWT_SECRET, options);

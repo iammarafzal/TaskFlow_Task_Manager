@@ -22,31 +22,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('__obsidianflow_jwt');
-    const storedUser = localStorage.getItem('__obsidianflow_user');
+    const storedToken = localStorage.getItem('__taskflow_jwt');
+    const storedUser = localStorage.getItem('__taskflow_user');
+    const storedExpiry = localStorage.getItem('__taskflow_jwt_expiry');
 
-    if (storedToken && storedUser) {
-      try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        localStorage.removeItem('__obsidianflow_jwt');
-        localStorage.removeItem('__obsidianflow_user');
+    if (storedToken && storedUser && storedExpiry) {
+      if (Date.now() > parseInt(storedExpiry, 10)) {
+        // Token expired
+        localStorage.removeItem('__taskflow_jwt');
+        localStorage.removeItem('__taskflow_user');
+        localStorage.removeItem('__taskflow_jwt_expiry');
+      } else {
+        try {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          localStorage.removeItem('__taskflow_jwt');
+          localStorage.removeItem('__taskflow_user');
+          localStorage.removeItem('__taskflow_jwt_expiry');
+        }
       }
     }
     setIsInitializing(false);
   }, []);
 
   const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('__obsidianflow_jwt', newToken);
-    localStorage.setItem('__obsidianflow_user', JSON.stringify(newUser));
+    // 12 hours from now
+    const expiry = Date.now() + 12 * 60 * 60 * 1000;
+    
+    localStorage.setItem('__taskflow_jwt', newToken);
+    localStorage.setItem('__taskflow_user', JSON.stringify(newUser));
+    localStorage.setItem('__taskflow_jwt_expiry', expiry.toString());
+    
     setToken(newToken);
     setUser(newUser);
   };
 
   const logout = () => {
-    localStorage.removeItem('__obsidianflow_jwt');
-    localStorage.removeItem('__obsidianflow_user');
+    localStorage.removeItem('__taskflow_jwt');
+    localStorage.removeItem('__taskflow_user');
+    localStorage.removeItem('__taskflow_jwt_expiry');
     setToken(null);
     setUser(null);
   };
