@@ -27,7 +27,7 @@ async function runBootstrapSequence() {
         // 4. Bind the server to the validated runtime execution port
         httpServer.listen(env.PORT, () => {
             console.log(`=======================================================`);
-            console.log(`  OBSIDIANFLOW GATEWAY RUNNING ONLINE (PORT ${env.PORT})   `);
+            console.log(`  TASKFLOW GATEWAY RUNNING ONLINE (PORT ${env.PORT})   `);
             console.log(`  Target Mode Environment: Localhost/Production Cluster `);
             console.log(`  Gateway Interface Address: http://localhost:${env.PORT}   `);
             console.log(`=======================================================`);

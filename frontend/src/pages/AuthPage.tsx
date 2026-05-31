@@ -102,8 +102,8 @@ export function AuthPage() {
           <div className="w-16 h-16 bg-[#111726] border border-white/[0.08] rounded-2xl flex items-center justify-center mb-6 shadow-2xl">
             <Hexagon className="w-8 h-8 text-blue-500" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Smart Task Manager</h1>
-          <p className="text-slate-500 text-sm mt-2">Welcome back! Please enter your details.</p>
+          <h2 className="text-2xl font-bold text-slate-100 mt-6 tracking-tight">TaskFlow</h2>
+          <p className="text-sm text-slate-500 mt-2 font-medium">Enter your credentials to continue.</p>
         </div>
 
         <div className="bg-[#111726]/60 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-8 shadow-2xl">

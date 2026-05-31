@@ -51,8 +51,8 @@ export function DashboardLayout() {
       <aside className="hidden md:flex w-64 border-r border-white/[0.06] bg-[#111726] flex-col shrink-0">
         <div className="h-20 flex items-center px-8 border-b border-white/[0.06]">
           <div className="flex items-center gap-3 text-slate-100 font-semibold tracking-tight">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">O</div>
-            <span className="text-xl">ObsidianFlow</span>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">T</div>
+            <span className="text-xl">TaskFlow</span>
           </div>
         </div>
         
@@ -86,7 +86,7 @@ export function DashboardLayout() {
       <div className="md:hidden fixed top-0 w-full h-16 border-b border-white/[0.06] bg-[#090d16]/80 backdrop-blur-md z-40 flex items-center justify-between px-4">
          <div className="flex items-center gap-2 text-slate-100 font-semibold tracking-tight">
             <Hexagon className="w-5 h-5 text-blue-500" />
-            <span>ObsidianFlow</span>
+            <span>TaskFlow</span>
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(true)}
@@ -117,7 +117,7 @@ export function DashboardLayout() {
               <div className="h-16 flex items-center justify-between px-6 border-b border-white/[0.06]">
                 <div className="flex items-center gap-2 text-slate-100 font-semibold tracking-tight">
                   <Hexagon className="w-5 h-5 text-blue-500" />
-                  <span>ObsidianFlow</span>
+                  <span>TaskFlow</span>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
