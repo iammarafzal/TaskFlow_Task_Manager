@@ -153,7 +153,8 @@ export function AuthPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@obsidianflow.inc"
+                  placeholder="admin@taskflow.inc"
+                  autoComplete="email"
                   className="w-full bg-[#0d121f] border border-white/[0.08] rounded-lg py-2.5 pl-10 pr-4 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                 />
               </div>
@@ -168,6 +169,7 @@ export function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete={isLogin ? "current-password" : "new-password"}
                   className="w-full bg-[#0d121f] border border-white/[0.08] rounded-lg py-2.5 pl-10 pr-10 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                 />
                 <button
