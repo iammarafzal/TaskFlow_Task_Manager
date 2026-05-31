@@ -17,7 +17,7 @@ app.use(cors({
         // Permit server-to-server or development tool requests (like Postman or curl) safely
         if (!origin) return callback(null, true);
 
-        if (env.CORS_ALLOWED_ORIGINS.includes(origin)) {
+        if (env.CORS_ALLOWED_ORIGINS.includes('*') || env.CORS_ALLOWED_ORIGINS.includes(origin)) {
             return callback(null, true);
         } else {
             return callback(new Error('Blocked by Cross-Origin Resource Sharing security boundaries.'));
