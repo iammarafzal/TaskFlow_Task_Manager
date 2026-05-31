@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Edit2, Trash2, Clock, Calendar, CheckCircle2, Circle, Search, Zap, X, Download, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Clock, Calendar, CheckCircle2, Circle, Search, Zap, X, Download, Upload, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { format, parseISO } from 'date-fns';
 import { useAppStore, Task, Impact, Status } from '../store/useAppStore';
 import { useSmartRefresh } from '../hooks/useSmartRefresh';
 import { useLocalTick } from '../hooks/useLocalTick';
+import { ImportTasksModal } from '../components/ImportTasksModal';
 
 export function TasksPage() {
   const {
@@ -19,6 +20,7 @@ export function TasksPage() {
   } = useAppStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'creation' | 'dueDate' | 'impact'>('creation');
@@ -45,6 +47,7 @@ export function TasksPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsModalOpen(false);
+        setIsImportModalOpen(false);
         setIsQuickAddOpen(false);
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
@@ -176,16 +179,23 @@ export function TasksPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="bg-[#111726] border border-white/[0.08] hover:border-white/[0.12] text-slate-300 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">Import</span>
+          </button>
+          <button
             onClick={handleExportTasks}
             className="bg-[#111726] border border-white/[0.08] hover:border-white/[0.12] text-slate-300 px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export Tasks</span>
+            <span className="hidden sm:inline">Export</span>
           </button>
           <button
             onClick={() => handleOpenModal()}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
-            title="Press 'N' to provision task"
+            title="Press 'N' to add a task"
           >
             <Plus className="w-5 h-5" />
             Add Task
@@ -246,7 +256,7 @@ export function TasksPage() {
       {isFetching.tasks && tasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-          <p className="text-slate-500 text-sm">Retrieving secure task payload...</p>
+          <p className="text-slate-500 text-sm">Loading your tasks...</p>
         </div>
       ) : filteredTasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/[0.06] rounded-2xl bg-[#111726]/20">
@@ -329,6 +339,11 @@ export function TasksPage() {
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSaveTask}
         initialData={editingTask}
+      />
+
+      <ImportTasksModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
       </div>
 

@@ -63,10 +63,7 @@ export async function authenticateToken(req, res, next) {
         // Inject user context securely into the request pipeline
         req.user = {
             id: user.id,
-            email: user.email,
-            dailyDigestTime: user.dailyDigestTime,
-            remind1h: user.remind1h,
-            remind3h: user.remind3h
+            email: user.email
         };
 
         // Proceed to the next middleware or matching controller action safely

@@ -25,42 +25,38 @@ export interface DashboardAnalytics {
   analytics7Days: { date: string; count: number; percentage: number }[];
 }
 
-export interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-}
+
 
 interface AppState {
   tasks: Task[];
-  focusTask: Task | null;
+  focusTasks: Task[];
   dashboardAnalytics: DashboardAnalytics | null;
-  notifications: Notification[];
+
 
   isFetching: {
     tasks: boolean;
-    focusTask: boolean;
+    focusTasks: boolean;
     dashboardAnalytics: boolean;
-    notifications: boolean;
   };
 
   // REST API Retrieval Actions (Supports Stale-While-Revalidate caching pattern)
   fetchTasks: () => Promise<void>;
   fetchDashboard: () => Promise<void>;
-  fetchFocusTask: () => Promise<void>;
-  fetchNotifications: () => Promise<void>;
+  fetchFocusTasks: () => Promise<void>;
+
 
   // REST API Mutation Actions (Supports Optimistic UI Updates)
   addTask: (taskData: { title: string; impact: Impact; dueDate: string; effort: number; status?: Status }) => Promise<void>;
   updateTask: (id: string, taskData: { title: string; impact: Impact; dueDate: string; effort: number; status?: Status }) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   toggleTaskStatus: (id: string) => Promise<void>;
-  markNotificationAsRead: (id: number) => Promise<void>;
+
 
   // Zero-API local task ticker for automated archiving states
   tickLocalRecalculations: () => void;
+
+  // Bulk Operations
+  bulkAddTasks: (tasksData: { title: string; impact: Impact; dueDate: string; effort: number; status?: Status }[]) => Promise<void>;
 }
 
 // Convert backend uppercase DB values to local camelCase structures
@@ -84,15 +80,14 @@ const mapToFrontend = (task: any): Task => {
 
 export const useAppStore = create<AppState>((set, get) => ({
   tasks: [],
-  focusTask: null,
+  focusTasks: [],
   dashboardAnalytics: null,
-  notifications: [],
+
 
   isFetching: {
     tasks: false,
-    focusTask: false,
+    focusTasks: false,
     dashboardAnalytics: false,
-    notifications: false,
   },
 
   // 1. Fetch Tasks (Stale-While-Revalidate Caching Layer)
@@ -126,36 +121,26 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // 3. Fetch Focus Task
-  fetchFocusTask: async () => {
-    if (get().isFetching.focusTask) return;
-    set((state) => ({ isFetching: { ...state.isFetching, focusTask: true } }));
+  // 3. Fetch Focus Tasks
+  fetchFocusTasks: async () => {
+    if (get().isFetching.focusTasks) return;
+    set((state) => ({ isFetching: { ...state.isFetching, focusTasks: true } }));
 
     try {
       const response = await api.get('/tasks/focus');
-      const focus = response.data.data ? mapToFrontend(response.data.data) : null;
-      set({ focusTask: focus });
+      // Backend now returns an array of up to 3 tasks
+      const focus = Array.isArray(response.data.data)
+        ? response.data.data.map(mapToFrontend)
+        : [];
+      set({ focusTasks: focus });
     } catch (err) {
-      console.error('[Zustand] Error retrieving focus task:', err);
+      console.error('[Zustand] Error retrieving focus tasks:', err);
     } finally {
-      set((state) => ({ isFetching: { ...state.isFetching, focusTask: false } }));
+      set((state) => ({ isFetching: { ...state.isFetching, focusTasks: false } }));
     }
   },
 
-  // 4. Fetch Notifications Warnings Log
-  fetchNotifications: async () => {
-    if (get().isFetching.notifications) return;
-    set((state) => ({ isFetching: { ...state.isFetching, notifications: true } }));
 
-    try {
-      const response = await api.get('/notifications');
-      set({ notifications: response.data.data });
-    } catch (err) {
-      console.error('[Zustand] Error retrieving notifications:', err);
-    } finally {
-      set((state) => ({ isFetching: { ...state.isFetching, notifications: false } }));
-    }
-  },
 
   // 5. Add Task (Optimistic UI Update)
   addTask: async (taskData) => {
@@ -194,6 +179,26 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Revert state if the API fails
       set({ tasks: originalTasks });
       console.error('[Zustand] Optimistic add task failed, reverting state:', err);
+      throw err;
+    }
+  },
+
+  // Bulk Add Tasks
+  bulkAddTasks: async (tasksData) => {
+    try {
+      const response = await api.post('/tasks/bulk', tasksData.map(t => ({
+        title: t.title,
+        impact: t.impact.toUpperCase(),
+        deadline: t.dueDate,
+        effort: t.effort,
+        status: (t.status || 'pending').toUpperCase(),
+      })));
+
+      const actualTasks = response.data.data.map(mapToFrontend);
+      const originalTasks = get().tasks;
+      set({ tasks: [...actualTasks, ...originalTasks] });
+    } catch (err) {
+      console.error('[Zustand] Bulk add tasks failed:', err);
       throw err;
     }
   },
@@ -285,21 +290,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // 9. Mark Warning Notification as Read (Optimistic UI Update)
-  markNotificationAsRead: async (id) => {
-    const originalNotifs = get().notifications;
-    set({
-      notifications: originalNotifs.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
-    });
 
-    try {
-      await api.put(`/notifications/${id}/read`);
-    } catch (err) {
-      set({ notifications: originalNotifs });
-      console.error('[Zustand] Optimistic read warning failed, reverting:', err);
-      throw err;
-    }
-  },
 
   // 10. Local Task Archiving Recalculation (0 API Cost)
   tickLocalRecalculations: () => {

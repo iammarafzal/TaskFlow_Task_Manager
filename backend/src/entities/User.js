@@ -21,31 +21,12 @@ export default new EntitySchema({
         createdAt: {
             type: "timestamp with time zone",
             createDate: true
-        },
-        dailyDigestTime: {
-            type: "varchar",
-            default: "08:00"
-        },
-        remind1h: {
-            type: "boolean",
-            default: true
-        },
-        remind3h: {
-            type: "boolean",
-            default: true
         }
     },
     relations: {
         tasks: {
             type: "one-to-many",
             target: "Task",
-            inverseSide: "user",
-            cascade: true,
-            onDelete: "CASCADE"
-        },
-        notifications: {
-            type: "one-to-many",
-            target: "Notification",
             inverseSide: "user",
             cascade: true,
             onDelete: "CASCADE"

@@ -6,7 +6,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { WebSocketProvider } from './context/WebSocketProvider';
+
 import { ToastContainer } from './components/ToastContainer';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { AuthPage } from './pages/AuthPage';
@@ -23,7 +23,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <AuthProvider>
-      <WebSocketProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
@@ -39,7 +38,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
         <ToastContainer />
-      </WebSocketProvider>
     </AuthProvider>
   );
 }

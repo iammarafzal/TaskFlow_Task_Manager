@@ -1,6 +1,6 @@
 // src/routes/user.routes.js
 import { Router } from 'express';
-import { getSettings, updateSettings } from '../controllers/user.controller.js';
+import { updateProfile } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -8,10 +8,9 @@ const router = Router();
 // Protect all settings modifications with token validations
 router.use(authenticateToken);
 
-// GET /api/v1/user/settings
-router.get('/settings', getSettings);
 
-// PUT /api/v1/user/settings
-router.put('/settings', updateSettings);
+
+// PUT /api/v1/user/profile
+router.put('/profile', updateProfile);
 
 export default router;

@@ -3,7 +3,6 @@ import http from 'http';
 import app from './app.js';
 import { env } from './config/environment.js';
 import { AppDataSource } from './database/datasource.js';
-import { initializeWebSocketServer } from './sockets/notification.socket.js';
 import { initializeCronWorkers } from './workers/reminder.worker.js';
 
 // Instantiate the decoupled native HTTP engine context wrapping the Express configuration
@@ -20,8 +19,7 @@ async function runBootstrapSequence() {
         await AppDataSource.initialize();
         console.log('[Bootstrap] Database connection context synced and verified successfully.');
 
-        // 2. Attach and bind the WebSocket Server layer
-        initializeWebSocketServer(httpServer);
+
 
         // 3. Launch background predictive task monitoring crons
         initializeCronWorkers();
@@ -32,7 +30,6 @@ async function runBootstrapSequence() {
             console.log(`  OBSIDIANFLOW GATEWAY RUNNING ONLINE (PORT ${env.PORT})   `);
             console.log(`  Target Mode Environment: Localhost/Production Cluster `);
             console.log(`  Gateway Interface Address: http://localhost:${env.PORT}   `);
-            console.log(`  WebSocket Secure Gateway: ws://localhost:${env.PORT}/ws/notifications `);
             console.log(`=======================================================`);
         });
 

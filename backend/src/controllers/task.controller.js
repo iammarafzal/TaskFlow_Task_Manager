@@ -15,6 +15,8 @@ const updateTaskSchema = createTaskSchema.partial().extend({
     status: z.enum(['PENDING', 'COMPLETED']).optional()
 });
 
+const bulkCreateTasksSchema = z.array(createTaskSchema);
+
 /**
  * Lists all tasks for the logged-in user
  */
@@ -80,6 +82,38 @@ export async function createTask(req, res, next) {
         const savedTask = await taskRepository.save(taskEntityInstance);
 
         return res.status(201).json({ success: true, data: savedTask });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+/**
+ * Bulk provisions tasks, executing score equations immediately before persisting
+ */
+export async function bulkCreateTasks(req, res, next) {
+    try {
+        const payload = bulkCreateTasksSchema.parse(req.body);
+        const taskRepository = AppDataSource.getRepository('Task');
+
+        const taskEntities = payload.map(taskData => {
+            const computedScore = calculatePriorityScore({
+                impact: taskData.impact,
+                deadline: new Date(taskData.deadline),
+                status: taskData.status
+            });
+
+            return taskRepository.create({
+                ...taskData,
+                deadline: new Date(taskData.deadline),
+                score: computedScore,
+                completedAt: taskData.status === 'COMPLETED' ? new Date() : null,
+                user: { id: req.user.id }
+            });
+        });
+
+        const savedTasks = await taskRepository.save(taskEntities);
+
+        return res.status(201).json({ success: true, data: savedTasks });
     } catch (error) {
         return next(error);
     }
@@ -154,22 +188,19 @@ export async function deleteTask(req, res, next) {
 }
 
 /**
- * Returns the highest-priority item requiring immediate user focus
+ * Returns the highest-priority items requiring immediate user focus
  */
-export async function getFocusTask(req, res, next) {
+export async function getFocusTasks(req, res, next) {
     try {
         const taskRepository = AppDataSource.getRepository('Task');
 
-        const focusTask = await taskRepository.findOne({
+        const focusTasks = await taskRepository.find({
             where: { user: { id: req.user.id }, status: 'PENDING' },
-            order: { score: 'DESC', deadline: 'ASC' }
+            order: { score: 'DESC', deadline: 'ASC' },
+            take: 3
         });
 
-        if (!focusTask) {
-            return res.status(200).json({ success: true, message: 'No pending tasks found. Your workload is fully clear.', data: null });
-        }
-
-        return res.status(200).json({ success: true, data: focusTask });
+        return res.status(200).json({ success: true, data: focusTasks });
     } catch (error) {
         return next(error);
     }

@@ -1,53 +1,76 @@
 // src/controllers/user.controller.js
 import { z } from 'zod';
 import { AppDataSource } from '../database/datasource.js';
+import { hashPassword, comparePasswords, generateToken } from '../services/auth.service.js';
 
-const updateSettingsSchema = z.object({
-    dailyDigestTime: z.string().regex(/^([0-1]\d|2[0-3]):[0-5]\d$/, {
-        message: "Time format must strictly match a 24-hour clock cycle configuration (HH:MM)."
-    }).optional(),
-    remind1h: z.boolean().optional(),
-    remind3h: z.boolean().optional()
+
+const updateProfileSchema = z.object({
+    email: z.string().email({ message: "Invalid email format structure." }).optional(),
+    currentPassword: z.string().optional(),
+    newPassword: z.string().min(8, { message: "New password must be at least 8 characters long." }).optional()
+}).refine(data => {
+    // If new password is provided, current password must be provided
+    if (data.newPassword && !data.currentPassword) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Current password is required when setting a new password.",
+    path: ["currentPassword"]
 });
 
 /**
- * Extracts and displays the profile settings for the authenticated requester
+ * Updates the user's secure profile information (email and password)
  */
-export async function getSettings(req, res, next) {
+export async function updateProfile(req, res, next) {
     try {
+        const payload = updateProfileSchema.parse(req.body);
         const userRepository = AppDataSource.getRepository('User');
-        const user = await userRepository.findOne({ where: { id: req.user.id } });
 
+        const user = await userRepository.findOne({ where: { id: req.user.id } });
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User settings target profile missing.' });
+            return res.status(404).json({ success: false, message: 'User profile not found.' });
+        }
+
+        let needsTokenRefresh = false;
+
+        // Handle Email Update
+        if (payload.email && payload.email !== user.email) {
+            // Check for conflict
+            const existingUser = await userRepository.findOne({ where: { email: payload.email } });
+            if (existingUser) {
+                return res.status(409).json({ success: false, message: 'A user account with this email address already exists.' });
+            }
+            user.email = payload.email;
+            needsTokenRefresh = true;
+        }
+
+        // Handle Password Update
+        if (payload.newPassword) {
+            const isMatch = await comparePasswords(payload.currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ success: false, message: 'The current password provided is incorrect.' });
+            }
+            user.password = await hashPassword(payload.newPassword);
+        }
+
+        await userRepository.save(user);
+
+        // If email was changed, we must issue a new token
+        let token = null;
+        if (needsTokenRefresh || payload.newPassword) {
+            // Re-authenticate and issue a new token
+            token = generateToken(user);
         }
 
         return res.status(200).json({
             success: true,
+            message: 'User profile successfully updated.',
             data: {
-                dailyDigestTime: user.dailyDigestTime,
-                remind1h: user.remind1h,
-                remind3h: user.remind3h
+                id: user.id,
+                email: user.email,
+                ...(token && { token })
             }
-        });
-    } catch (error) {
-        return next(error);
-    }
-}
-
-/**
- * Updates individual settings fields securely
- */
-export async function updateSettings(req, res, next) {
-    try {
-        const payload = updateSettingsSchema.parse(req.body);
-        const userRepository = AppDataSource.getRepository('User');
-
-        await userRepository.update({ id: req.user.id }, payload);
-
-        return res.status(200).json({
-            success: true,
-            message: 'User configuration preferences successfully synchronized.'
         });
     } catch (error) {
         return next(error);
