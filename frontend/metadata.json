@@ -1,5 +1,5 @@
 {
-  "name": "ObsidianFlow Task Engine",
+  "name": "TaskFlow Task Engine",
   "description": "Deep cinematic minimalist task management system.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

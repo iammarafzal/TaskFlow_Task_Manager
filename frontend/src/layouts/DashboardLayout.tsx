@@ -55,7 +55,7 @@ export function DashboardLayout() {
             <span className="text-xl">TaskFlow</span>
           </div>
         </div>
-        
+
         <div className="flex-1 py-6 px-2">
           <NavLinks />
         </div>
@@ -84,16 +84,16 @@ export function DashboardLayout() {
 
       {/* Mobile Topbar */}
       <div className="md:hidden fixed top-0 w-full h-16 border-b border-white/[0.06] bg-[#090d16]/80 backdrop-blur-md z-40 flex items-center justify-between px-4">
-         <div className="flex items-center gap-2 text-slate-100 font-semibold tracking-tight">
-            <Hexagon className="w-5 h-5 text-blue-500" />
-            <span>TaskFlow</span>
-          </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 text-slate-400 hover:text-slate-100 transition-colors"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+        <div className="flex items-center gap-2 text-slate-100 font-semibold tracking-tight">
+          <Hexagon className="w-5 h-5 text-blue-500" />
+          <span>TaskFlow</span>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="p-2 text-slate-400 hover:text-slate-100 transition-colors"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
       </div>
 
       {/* Mobile Drawer */}
