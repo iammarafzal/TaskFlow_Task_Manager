@@ -13,16 +13,7 @@ app.use(helmet());
 
 // 2. Dynamic Cross-Origin Resource Sharing Coordination
 app.use(cors({
-    origin: (origin, callback) => {
-        // Permit server-to-server or development tool requests (like Postman or curl) safely
-        if (!origin) return callback(null, true);
-
-        if (env.CORS_ALLOWED_ORIGINS.includes('*') || env.CORS_ALLOWED_ORIGINS.includes(origin)) {
-            return callback(null, true);
-        } else {
-            return callback(new Error('Blocked by Cross-Origin Resource Sharing security boundaries.'));
-        }
-    },
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
