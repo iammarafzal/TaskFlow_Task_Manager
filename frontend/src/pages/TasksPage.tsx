@@ -493,7 +493,6 @@ function TaskModal({ isOpen, onClose, onSave, initialData }: { isOpen: boolean, 
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }} 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
-        onClick={onClose} 
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -502,9 +501,18 @@ function TaskModal({ isOpen, onClose, onSave, initialData }: { isOpen: boolean, 
         className="relative w-full max-w-lg bg-[#111726] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden"
       >
         <div className="p-6">
-          <h2 className="text-xl font-bold text-slate-100 mb-6 tracking-tight">
-            {initialData ? 'Edit Task' : 'New Task'}
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-100 tracking-tight">
+              {initialData ? 'Edit Task' : 'New Task'}
+            </h2>
+            <button 
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-slate-100 transition-colors rounded-full hover:bg-white/[0.05]"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           
           <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
