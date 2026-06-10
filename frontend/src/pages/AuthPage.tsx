@@ -60,7 +60,7 @@ export function AuthPage() {
         const response = await api.post('/auth/login', { email, password });
         token = response.data.token;
       } else {
-        await api.post('/auth/signup', { email, password });
+        await api.post('/auth/signup', { name: name.trim(), email, password });
         // Auto-authenticate immediately following account creation
         const response = await api.post('/auth/login', { email, password });
         token = response.data.token;
