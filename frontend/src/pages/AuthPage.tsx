@@ -80,7 +80,11 @@ export function AuthPage() {
       login(token, authenticatedUser);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Authentication failed. Please try again.');
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError(err.message || 'Authentication failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
