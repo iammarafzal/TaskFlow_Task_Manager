@@ -44,14 +44,16 @@ export function generateToken(user) {
 
 /**
  * Registers a new user with hashed password.
+ * @param {string} name
  * @param {string} email
  * @param {string} password
  * @returns {Promise<object>} The created user entity.
  */
-export async function registerUser(email, password) {
+export async function registerUser(name, email, password) {
     const hashedPassword = await hashPassword(password);
     const userRepository = AppDataSource.getRepository('User');
     const newUser = userRepository.create({
+        name,
         email,
         password: hashedPassword
     });

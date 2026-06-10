@@ -6,6 +6,8 @@ dotenv.config();
 
 // Schema definition for operational environments
 const environmentSchema = z.object({
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    
     PORT: z
         .string()
         .default('8000')

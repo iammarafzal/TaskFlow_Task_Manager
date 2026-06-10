@@ -9,6 +9,10 @@ export default new EntitySchema({
             type: "uuid",
             generated: "uuid"
         },
+        name: {
+            type: "varchar",
+            nullable: false
+        },
         email: {
             type: "varchar",
             unique: true,

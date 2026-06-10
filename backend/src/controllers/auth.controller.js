@@ -5,6 +5,7 @@ import { registerUser, authenticateCredentials } from '../services/auth.service.
 
 // Input Validation Schemas
 const signupSchema = z.object({
+    name: z.string().min(1, { message: "Name is required." }),
     email: z.string().email({ message: "Invalid email format structure." }),
     password: z.string().min(8, { message: "Password must consist of at least 8 characters." })
 });
@@ -32,13 +33,14 @@ export async function signup(req, res, next) {
         }
 
         // Provision the new user profile via the Auth Service
-        const newUser = await registerUser(payload.email, payload.password);
+        const newUser = await registerUser(payload.name, payload.email, payload.password);
 
         return res.status(201).json({
             success: true,
             message: 'User identity successfully created.',
             data: {
                 id: newUser.id,
+                name: newUser.name,
                 email: newUser.email
             }
         });
