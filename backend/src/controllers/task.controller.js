@@ -15,7 +15,12 @@ const updateTaskSchema = createTaskSchema.partial().extend({
     status: z.enum(['PENDING', 'COMPLETED']).optional()
 });
 
-const bulkCreateTasksSchema = z.array(createTaskSchema);
+const bulkCreateTaskItemSchema = createTaskSchema.extend({
+    createdAt: z.string().datetime().optional(),
+    completedAt: z.string().datetime().nullable().optional()
+});
+
+const bulkCreateTasksSchema = z.array(bulkCreateTaskItemSchema);
 
 /**
  * Lists all tasks for the logged-in user
@@ -106,7 +111,10 @@ export async function bulkCreateTasks(req, res, next) {
                 ...taskData,
                 deadline: new Date(taskData.deadline),
                 score: computedScore,
-                completedAt: taskData.status === 'COMPLETED' ? new Date() : null,
+                createdAt: taskData.createdAt ? new Date(taskData.createdAt) : undefined,
+                completedAt: taskData.status === 'COMPLETED' 
+                    ? (taskData.completedAt ? new Date(taskData.completedAt) : new Date()) 
+                    : null,
                 user: { id: req.user.id }
             });
         });

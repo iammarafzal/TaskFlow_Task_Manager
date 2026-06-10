@@ -192,6 +192,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         deadline: t.dueDate,
         effort: t.effort,
         status: (t.status || 'pending').toUpperCase(),
+        createdAt: t.createdAt,
+        completedAt: t.completedAt
       })));
 
       const actualTasks = response.data.data.map(mapToFrontend);
